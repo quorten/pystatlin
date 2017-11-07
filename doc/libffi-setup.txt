@@ -1,0 +1,23 @@
+# Optional, build libffi if you are missing it and want support for
+# shared library dynamic modules.  You probably don't want this if you
+# want to statically link all your modules into your Python
+# executable.
+
+rpm -i libffi-3.0.13-16.el7.src.rpm
+cd rpmbuild/SPECS
+rpmbuild -bp libffi.spec
+cd ../BUILD/libffi-3.0.13
+./configure CC=musl-gcc --prefix=/usr/local/musl --disable-shared
+make -j`getconf _NPROCESSORS_ONLN`
+sudo make install
+cd ../..
+# pwd rpmbuild
+rm -rf *
+cd ..
+
+# Why do we do the following?  Well, I just like to have all libraries
+# in the lib folder and not use lib64 in the case of an all-static
+# custom compile job.
+sudo mv -i /usr/local/musl/lib64/{libffi.a,libffi.la} \
+  /usr/local/musl/lib/
+sudo rmdir /usr/local/musl/lib64

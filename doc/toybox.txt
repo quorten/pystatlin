@@ -1,0 +1,41 @@
+# When you're preparing to build the Docker image, you can install
+# toybox if you like, but do keep in mind that you are just flinging
+# around extra junk that will not need to be used by a well-built
+# Python container.
+
+# 20161011/https://en.wikipedia.org/wiki/Toybox
+# 20161011/http://www.landley.net/toybox/
+
+curl -L -O http://www.landley.net/toybox/downloads/toybox-0.7.1.tar.gz
+tar -zxf $S/toybox-0.7.1.tar.gz
+cd toybox-0.7.1
+make defconfig
+# Wishful thinking... toybox doesn't actually include a working vi.
+sed -i -e 's/^# CONFIG_SH is not set$/CONFIG_SH=y/' \
+  -e 's/^# CONFIG_VI is not set$/CONFIG_VI=y/' \
+  -e 's/^# CONFIG_INIT is not set$/CONFIG_INIT=y/' \
+  -e 's/^# CONFIG_USERADD is not set$/CONFIG_USERADD=y/' \
+  -e 's/^# CONFIG_USERDEL is not set$/CONFIG_USERDEL=y/' \
+  -e 's/^# CONFIG_GROUPADD is not set$/CONFIG_GROUPADD=y/' \
+  -e 's/^# CONFIG_GROUPDEL is not set$/CONFIG_GROUPDEL=y/' \
+  .config
+make LDFLAGS=-static CC=musl-gcc -j`getconf _NPROCESSORS_ONLN`
+sudo make install PREFIX=$HOME/troot
+cd ..
+rm -rf toybox-0.7.1
+
+# Fix up the symlinks that toybox generated.
+cd droot/bin
+for f in `ls -l | grep ../../bin/toybox | awk '{ print $9 }'`; do
+  rm -f $f
+  ln -s toybox $f
+done
+
+# Oh, why don't we also do curl while we're at it too?  Oh, because
+# that requires more work than I'm willing to do at the moment.
+
+# Logging?  You have a few choices:
+# * Busybox/toybox syslog (Recommended)
+# * rsyslog
+# * syslog-ng
+# * If you are really spiffy, you can implement a Syslog in Python.

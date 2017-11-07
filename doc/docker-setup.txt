@@ -1,0 +1,21 @@
+# These are my notes on setting up Docker on a CentOS 7.1 VM, then
+# creating a static compile of Python to build a container from
+# scratch.  Some parts of this file are notes, others are actual shell
+# commands.
+
+# 20161006/https://docs.docker.com/engine/installation/linux/centos/
+# Note: You need CentOS 7.1
+uname -r
+# 3.10.0-229.el7.x86_64
+yum -y update
+tee /etc/yum.repos.d/docker.repo <<EOF
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/centos/7/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+yum -y install docker-engine
+systemctl enable docker.service
+systemctl start docker

@@ -1,0 +1,98 @@
+These are general notes for the overall build environment and
+peripheral components required to support Python.  Here, the emphasis
+is mainly on compiling `musl' and setting C compiler flags.
+
+######################################################################
+
+Important!  Save the git URLs of other repositories of interest.
+
+20161014/https://github.com/jiacai2050/pysh.git
+20161014/https://github.com/bendmorris/static-python.git
+20161014/https://github.com/rpodgorny/unionfs-fuse.git
+20161014/https://github.com/phusion/baseimage-docker.git
+
+Important link from static-python hyping up static linking as evil.
+Yet, we must do static linking in order to put together the smallest
+of object code files into something more coherent.  Yes, the article
+does comment on that properly at the end in the Clarification section.
+
+20161017/https://www.akkadia.org/drepper/no_static_linking.html
+
+Here's another interesting link on compiling position-independent
+executables (PIE).  You simply pass in the `-pie' option, and you can
+still compile and link the same with code that's had the `-fPIC'
+compiler option.  You don't need to use `-fPIE', that's only if you
+want to absolutely constrain the compiled code to only
+position-independent executables and nothing else.
+
+20161017/https://access.redhat.com/blogs/766093/posts/1975793
+
+* Yes!  This post above helped me find out how to fix the Makefile and
+  linking in musl-libc.  So it actually was helpful, I just wasn't
+  fully aware of how the information could be used, but now I am.
+
+  The other option and path I could have gone down would be to read
+  the gcc documentation in more detail.  That I've already done a
+  little, but then it became apparent that I'd have to read in still a
+  little more detail to figure out how to fix the library linking
+  problem so that I can pass in libc.a on the command line but not
+  inclue any system default libraries.
+
+######################################################################
+
+Important: Use the ldd command to determine if an executable is static
+or dynamic, and the libraries a dynamic executable depends on.
+
+##########
+
+Can you dynamic link with musl?  Apparently yes.  Oh wait, this is
+uClibc.  Well, maybe that's close enough, is musl derived from uClibc?
+
+20161008/https://dev.openwrt.org/ticket/13235
+
+Note that static-linking earlier versions of OpenSSL with musl will
+result in compile errors.  Solution: Upgrade.  I've found a version
+that works for me.
+
+20161008/http://openssl.6102.n7.nabble.com/Compile-openssl-by-musl-gcc-td50594.html
+20161008/http://www.openwall.com/lists/musl/2014/11/06/16
+20161008/http://www.openwall.com/lists/musl/2014/11/06/17
+20161008/https://dev.openwrt.org/ticket/18182
+20161008/https://dev.openwrt.org/changeset/43045
+20161008/https://www.openssl.org/source/
+
+Likewise with older versions of Python 3.  The version of my choice
+works fine, though.
+
+######################################################################
+
+Also NOTE!  What about those stubs that say that dynamic linking is
+not supported?  Weak symbols, they get overridden if the LDSO files
+are linked in.
+
+20161018/https://en.wikipedia.org/wiki/Weak_symbol
+
+######################################################################
+
+Okay, here's the lowdown on security and compiler flags.
+
+20161024/https://wiki.debian.org/Hardening
+20161024/https://wiki.ubuntu.com/Security/HardeningWrapper
+20161024/https://wiki.ubuntu.com/ToolChain/CompilerFlags
+20161024/http://security.stackexchange.com/questions/24444/what-is-the-most-hardened-set-of-options-for-gcc-compiling-c-c
+20161024/https://gist.github.com/shekkbuilder/5c776d1f84913cc45c1a
+20161024/https://packages.gentoo.org/useflags/hardened
+20161024/https://wiki.gentoo.org/wiki/Hardened/Toolchain
+20161024/https://wiki.gentoo.org/wiki/Hardened/PaX_Quickstart
+20161024/http://www.insanitybit.com/2012/05/31/compile-and-patch-your-own-secure-linux-kernel-with-pax-and-grsecurity/
+20161024/https://fedoraproject.org/wiki/Changes/Harden_All_Packages?rd=Changes/Harden_all_packages_with_position-independent_code
+
+OWASP has information on this.  Well, then that better be good.
+
+20161024/https://www.owasp.org/index.php/C-Based_Toolchain_Hardening
+20161024/https://sourceware.org/ml/binutils/2012-03/msg00309.html
+20161024/https://sourceware.org/ml/binutils/2012-03/msg00312.html
+20161024/https://groups.google.com/a/isocpp.org/forum/?fromgroups=#!topic/std-discussion/ak8e1mzBhGs
+20161024/https://linux.die.net/man/5/elf
+20161024/https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2012-1525
+20161024/http://www.agarri.fr/blog/index.html

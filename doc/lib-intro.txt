@@ -1,0 +1,410 @@
+# Oh, this is a great example, it's so convoluted, but it readily
+# illustrates the point.
+
+cat >example.c <<EOF
+#include <stdio.h>
+
+char message[] = "Hello there, test.";
+
+int
+main (void) {
+  puts(message);
+  return 0;
+}
+EOF
+
+# Indeed, a very simple program.  Very simple to compile too:
+
+cc -c example.c
+cc -o example example.o
+./example
+
+# You're probably familiar with compiling basic C programs in this
+# manner.  Note that the above program probably has shared library
+# dependencies when compiled with the default options.  You can view
+# these using the `ldd' program:
+
+ldd example
+
+# For our purposes, we want to start by compiling static binaries.  A
+# static binary has no shared library dependencies; therefore, it can
+# be mapped and executed more readily by the kernel.  Most
+# importantly, however, it can never fail to start due to missing or
+# incompatible shared libraries since it has no such dependencies.
+
+# Static linking can be enabled via the -static option.  Some people
+# want to be extra safe and also pass the -static-libgcc option, but
+# this is redundant when -static is provided.  It is not necessary to
+# pass -static during compilation to `.o' object files.
+
+# Also, make sure you have the static libraries for the C runtime
+# installed on your system.  You may need to do
+# `yum -y install glibc-static' or
+# `apt-get install glibc-devel' to get this.
+
+rm example.o example
+cc -c example.c
+cc -static -o example example.o
+ldd example
+./example
+
+# When compiling packages that have a make and autoconf system setup,
+# the same effect can be achieved by adding -static to the LDFLAGS
+# variable.
+
+# By slightly modifying the above build setup, you can instead build
+# and link a static library, then pass that static library to the
+# static linker.
+
+rm example.o example
+cc -c example.c
+ar rc libexample.a example.o
+ranlib libexample.a
+cc -static -o example libexample.a
+ldd example
+./example
+
+# Note that the static library is passed to the linker just like a
+# regular object file.  However, if the static library is within your
+# LIBRARY_PATH, then you can use an alternate syntax for linking the
+# library in.  There's more than one way to configure the
+# LIBRARY_PATH, such as using the `-L' option with gcc.  See the gcc
+# documentation for full details.
+
+rm example
+LIBRARY_PATH=$PWD cc -static -o example -lexample
+ldd example
+./example
+
+# Note that the library file in question must be prefixed with "lib"
+# in order for this to work.
+
+# Now that you've been fully introduced to static libraries, let's try
+# shared libraries.  First, we'll start by demonstrating a mistake.
+
+cc -shared -o libexample.so \
+  -Wl,--whole-archive libexample.a -Wl,--no-whole-archive
+
+# Here, you can see that we need to compile our original source files
+# with -fPIC for things to work correctly.  (Note that there's an
+# important difference between `-fPIC' and `-fpic'.  You probably want
+# to use `-fPIC' most of the time.  See the gcc documentation for
+# details.)  So now we have to go back to the start and do that.
+
+rm example.o libexample.a example
+cc -fPIC -c example.c
+ar rc libexample.a example.o
+ranlib libexample.a
+cc -shared -o libexample.so -fPIC \
+  -Wl,--whole-archive libexample.a -Wl,--no-whole-archive
+
+# Note that we also specify -fPIC when linking into the shared object.
+# It is the preferred best practice to also pass the C compilation
+# flags when linking into a shared library.
+
+# Also note that we use the "-Wl,--whole-archive" and
+# "-Wl,--no-whole-archive".  When passing in library archives to gcc
+# rather than individual object files, these are necessary to obtain
+# the same effect as calling gcc by passing in each individual object
+# code file such as
+#  "gcc -o executable obj1.o obj2.o obj3.o obj4. obj5.o".  In
+# particular, without this modification, the linker will only bring
+# in objects that are required for code execution, which in the case
+# of building a shared library, is nothing.  Without these linker
+# flags, you would be left with an empty and useless shared library.
+
+# Although we didn't pass in these flags for our earlier static
+# library example, it is generally best practice to always use these
+# flags if you are modifying a build command line to pass in a library
+# in place of a list of individual object files.  In other words, we
+# should have used the "-Wl,--whole-archive" and
+# "-Wl,--no-whole-archive" flags in the static library example, but we
+# didn't, simply for the sake of brevity.
+
+# Coming back to our shared library example, you can build the
+# dynamic-linked executable in one of two ways.
+
+cc -o example libexample.so
+LD_LIBRARY_PATH=$PWD ldd example
+LD_LIBRARY_PATH=$PWD ./example
+rm example
+LIBRARY_PATH=$PWD cc -o example -lexample
+LD_LIBRARY_PATH=$PWD ldd example
+LD_LIBRARY_PATH=$PWD ./example
+
+# Note that here, we must also configure LD_LIBRARY_PATH when running
+# our dynamically-linked executable.  We would not need to do this
+# were it installed into the default shared library search path, and
+# the same is true at the compilation step (for static libraries too).
+# See the man page for `ld.so' for more information on configuration
+# of the dynamic linker search paths.
+
+# Now, let's do something a little bit finicky.  We'll pass in our
+# libexample.a to build a static executable, even though we compiled
+# it with -fPIC.
+
+rm example
+LIBRARY_PATH=$PWD cc -static -o example -lexample
+ldd example
+./example
+
+# It still works.  The main reason why you may want to do this is if
+# you want to link together your static libraries to create a
+# position-independent executable (PIE).  Another reason for this is
+# if you're in development and you don't want to wait to compile the
+# code twice.  PIC code is slightly slower and less efficient than
+# fixed base address code, so there are circumstances where building a
+# PIC static library is not preferred.  The extra complexity of PIC
+# code is why a full recompile with the correct options are necessary.
+
+# Some architectures support building shared libraries as fixed base
+# address code, but generally, ELF-x86/ELF-x86-64 Linux requires
+# shared libraries to be position-independent.
+
+# So, why don't we demonstrate building a PIE?
+
+rm libexample.so
+LIBRARY_PATH=$PWD cc -pie -o example -lexample
+ldd example
+./example
+
+# That works, almost too well.  Let's show something that doesn't work
+# then.
+
+rm example.o libexample.a example
+cc -c example.c
+cc -pie -o example example.o
+
+# Now you can see that doesn't work and we're told to recompile with
+# `-fPIC'.
+
+# Finally, let's demonstrate one more thing that doesn't work with
+# shared libraries.
+
+rm example.o
+cc -shared -o libexample.so -fPIC example.c
+LIBRARY_PATH=$PWD cc -static -o example -lexample
+
+# The compiler fails.  It cannot statically link the shared library
+# into a static executable.  Why?  Shared libraries do not contain as
+# much information as static libraries do.  Thus, it is not possible
+# to complete a static link using a shared library, but going the
+# opposite direction from static to shared is possible, provided that
+# the contained object code was compatibly compiled.
+
+# As you can see, at this point, we've demonstrated more things that
+# don't work with shared libraries than we have with static libraries.
+# So now you might be wondering what the main advantage of shared
+# libraries are.  The main reason for using shared libraries is easier
+# software updates.  A shared library can simply be replaced in a file
+# system without the need to regenerate all the executables that use
+# it.  Let's demonstrate this:
+
+# NOTE: Example 2 is not inlined here due to its size.
+echo >example2.c <<REOF
+REOF
+
+rm libexample.so
+cc -fPIC -c example.c
+ar rc libexample.a example.o
+ranlib libexample.a
+rm example.o
+cc -shared -o libexample.so -fPIC \
+  -Wl,--whole-archive libexample.a -Wl,--no-whole-archive
+cc -fPIC -c example2.c
+ar rc libexample2.a example2.o
+ranlib libexample2.a
+rm example2.o
+cc -shared -o libexample2.so -fPIC \
+  -Wl,--whole-archive libexample2.a -Wl,--no-whole-archive
+LIBRARY_PATH=$PWD cc -o example -lexample
+LD_LIBRARY_PATH=$PWD ldd example
+LD_LIBRARY_PATH=$PWD ./example
+
+mv libexample.so libexample.so.1
+mv libexample2.so libexample.so.2
+ln -s libexample.so.2 libexample.so
+ls -l
+echo '(1 + 2) - 2 * 3 =' | LD_LIBRARY_PATH=$PWD ./example
+
+# As you can see, by simply swapping out which shared library the
+# filesystem path referred to, we've entirely changed the
+# functionality of our example program.  In another vein, this could
+# possibly be a security issue.  Let's look at another way that shared
+# libraries can be swapped out:
+
+rm 'libexample.so'
+mv libexample.so.1 libexample.so
+LD_LIBRARY_PATH=$PWD ./example
+echo '(1 + 2) - 2 * 3 =' | \
+  LD_PRELOAD=libexample.so.2 LD_LIBRARY_PATH=$PWD ./example
+
+# As can be seen here, LD_PRELOAD can be used to preload an alternate
+# shared library such that the symbols from the original shared
+# library are overridden.
+
+# Now you might be wanting to bring up other security advantages of
+# using shared libraries, but let me make this point clear.  The
+# primary security advantage of shared libraries is easier software
+# upgrades to fix security vulnerabilities.  No, address space layout
+# randomization (ASLR) is not a primary security advantage of shared
+# libraries, that is merely a defense technique to mitigate insecure
+# code.  In other words, it's an accidental benefit.  More
+# importantly, it is a limited one too: ASLR is only efficient when it
+# is applied to large chunks of code.  Conversely, ASLR is defective
+# for securing small amounts of code.  In other words, touting ASLR as
+# a primary security mechanism is a red herring.  Remember that.
+
+# TODO: Finally, time for a little introduction into common build
+# systems.  libtool.  Remember that, don't forget to cover it.  For at
+# least one build system, the configure script is not setup to be able
+# to pass down a configuration option to it properly (Expat), so you
+# may have to hack other such programs if you want correct behavior.
+# The purpose of libtool was to simplify cross-platform building of
+# shared libraries.  Some historic platforms were very inconsistent,
+# so they required highly specialized behavior for proper building of
+# shared libraries.
+
+# TODO: I'm so annoyed!  How many people don't understand linking and
+# how it applies to the GNU Lesser General Public License?  I'm going
+# to have to add a special section just to address this, since it is a
+# common misconception.  To put it in simple language, basically the
+# problem is that the requirements of the license require a more
+# elegant build system than is the "industry standard," which means
+# that lazy proprietary software developer's practices will violate
+# the license by default.  Thus, there are a few ways around this.
+# One way would be to try to educate the developers in question.  We
+# understand that in the real world, that often times doesn't work out
+# as well as a more automated solution, which requires "no education."
+# So, covering the automated solutions.  One way would be to create an
+# easy-to-use build system that does the necessary distribution
+# packaging work.  To the best of my knowledge, no such system has
+# become sufficiently popular for me to hear of it by either a web
+# search or by "word of mouth" (adjusting for the fact that I often
+# times learn about technology from the writings of other people
+# remotely on the Internet).
+
+# You'll see below that I reinvent yet another such system that
+# fulfills this purpose due to my failure to find the existing work
+# that other people have created.  It could just as well take a pretty
+# long time for such technologies to become popular, despite their
+# ease of implementation.
+
+##########
+
+# Addendum: Interesting ways to improve delta compilation of software.
+
+# I've previously demonstrated the full range of binary compiled code
+# management.  Quite often, you'll find that C-compiled software does
+# not adhere to the very best of practices that I've demonstrated.
+# Chances are that the original developers were similar to me in as
+# far as I didn't fully understand all the specifics of static and
+# dynamic linking.
+
+# Yet the problem remains: If you want to compile software with ideal
+# library packaging, you'd have to end up patching the build systems
+# for thousands of software packages.  Isn't there a more automatic
+# way to do this?  Indeed, there is.  When compiling the software,
+# it's possible to replace CC with something other than gcc that acts
+# as a preprocessor to do the correct and intelligent things that the
+# software build system does not do on its own.
+
+# So, can we see something that does precisely that?
+
+So, let's map out how things go from a compile, the data pipeline
+paths.
+
+Upstream tarball > .c source files > .o object files
+  > cpio of .o tree > tarball of .o tree > zip of .o tree
+  > .a static library > executable/shared library
+
+The main computational burden happens from compilation from .c to .o
+files.  Traveling the paths forward, there is a steady reduction in
+available data.  The most notable reduction in available data from zip
+archive to static library is the loss of the full path names of the
+object files.  The object files must appear in their original
+locations for typical "make" delta compilation to function normally.
+The issue here is that our compiler toolchain cannot accept a zip file
+in place of a .a archive.
+
+Another option that we could do is to create a text file that contains
+an association mapping to the original path names (relative to the
+source root) inside the static library.  Hey, actually I like that
+idea a lot.  Or, maybe better, make it an executable shell script, and
+delta compress the path names.
+
+Oh, and to make creating the stub easier, you can create an artificial
+linker flag that is to be only used by the stub to check if it should
+come into effect or not.  Okay, how would that work?  When the link
+mode is enabled, it would simply bundle all object code files into a
+static library, then pass that to the normal gcc command with the .o
+files removed and the correct --whole-archive options surrounding it.
+
+Tar or cpio?  There you go: tar is more popular, but cpio is better.
+Especially because it is more portable.  With tar, you have a heavy
+reliance on GNU tar if you want to be able to do advanced things
+correctly.
+
+20161016/https://en.wikipedia.org/wiki/Cpio
+20161016/http://rightsock.com/kjw/Ramblings/tar_v_cpio.html
+
+##########
+
+Yeah, we don't need to use either tar or cpio.  We can just pack it
+all up inside the .a file using additional metafiles.  So, let's name
+them now:
+
+move-lfn.sh -- Convert the flat directory, short names to the original
+               hierarchy, long file names.  Useful for delta
+               recompiles.  Often times for delta recompiles to work
+               correctly, the prelink packaging system will need to be
+               augmented to also include post-configure generated
+               files.
+link.sh -- Command line to fully link the static library into an
+	   executable or shared library
+install.sh -- After a linkdown, these are the commands to install the
+	      linked binaries to their target locations.  The idea is
+	      that you perform the linking in a build directory
+	      similar to the case of source code builds.
+
+Really, what build from source processes should look like is something
+like this:
+
+./configure
+make compile
+make prelink
+make link
+make install
+
+"make all" is the same as "make compile prelink link".  We already
+know that "make install" is clumbsy and non-standard such that the
+only fact that really holds for it is that running it will cause
+binaries to be installed into a default location for running them
+natively on the same machine used to compile them.  Beyond that,
+distribution build systems use a variety of tactics to try to isolate
+the effects of "make install" to be able to build separate packages.
+Packaging processes often include a little bit of extra manual work to
+separate development files from runtime files.
+
+----------------------------------------
+
+Deterministic builds.  How do you do this?
+
+Note that building from the same source file with the same compiler
+version and same compiler options will result in the exact same byte
+output in an unlinked object code file.  The main problem is when
+building `.a' archives.  There is a solution when using newer versions
+of binutils: the `-D' or `--enable-deterministic-archives' option.
+For older versions of GNU binutils and BSD binutils, you need to use
+an external tool to wipe the timestamps.
+
+20161129/http://stackoverflow.com/questions/6741737/ar-library-override-timestamp
+20161129/https://github.com/nh2/ar-timestamp-wiper/blob/master/ArTimestampWiper.hs
+20161129/https://sourceware.org/binutils/docs/binutils/strip.html
+
+Also, on one hand, I was concerned that embedding timestamps in
+executables could throw off proper delta build treatment.  From
+experimental use on a new version of binutils/gcc, it seems that this
+is not an issue.  Maybe not anymore.  Otherwise, I think that symbol
+stripping might be able to get rid of unwanted timestamps.  This may
+be something that I should look into more with older versions.

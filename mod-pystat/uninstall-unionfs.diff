@@ -1,0 +1,20 @@
+commit 0ee84ed780071605f9727524c2e3368e1fc5ad7b
+Author: Cloud User <centos@docker-vm1.localdomain>
+Date:   Mon Oct 10 12:33:16 2016 -0400
+
+    Add uninstall target to Makefile.
+
+diff --git a/Makefile b/Makefile
+index 1e25dbe..a1bb7fd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -33,3 +33,9 @@ install: build
+ 	install -m 0755 src/unionfsctl $(DESTDIR)$(PREFIX)$(BINDIR)
+ 	install -m 0755 mount.unionfs $(DESTDIR)$(PREFIX)$(SBINDIR)
+ 	install -m 0644 man/unionfs.8 $(DESTDIR)$(PREFIX)/share/man/man8/
++
++uninstall:
++	rm -f $(DESTDIR)$(PREFIX)$(BINDIR)/unionfs
++	rm -f $(DESTDIR)$(PREFIX)$(BINDIR)/unionfsctl
++	rm -f $(DESTDIR)$(PREFIX)$(SBINDIR)/mount.unionfs
++	rm -f $(DESTDIR)$(PREFIX)/share/man/man8/unionfs.8

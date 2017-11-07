@@ -1,0 +1,8 @@
+Important information on readline and libedit:
+
+20161012/https://en.wikipedia.org/wiki/GNU_Readline
+20161012/http://www.cs.utah.edu/~bigler/code/libedit.html
+20161012/http://thrysoee.dk/editline/
+
+What's the difference?  Mainly, `libedit' is permissively licensed,
+`readline' is copyleft.

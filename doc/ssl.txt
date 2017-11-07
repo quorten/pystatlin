@@ -1,0 +1,19 @@
+Now you say this would be way cool if you could compile Python with
+LibreSSL.  And, it would be more secure.  Then again, Python HTTPS was
+never meant to be rigged out to be secure as it doesn't even check
+certificates.  So there you go.  But here's the references for a
+start.  It looks like getting started should be as easy as swapping
+out the libraries and recompiling.
+
+20161012/https://en.wikipedia.org/wiki/OpenSSL
+20161012/https://en.wikipedia.org/wiki/LibreSSL
+20161012/https://en.wikipedia.org/wiki/IBM_4758
+20161012/https://en.wikipedia.org/wiki/OpenSSL#BoringSSL
+20161012/https://www.libressl.org
+20161012/https://www.libressl.org/releases.html
+20161012/https://github.com/libressl-portable/portable
+20161012/http://bugs.python.org/issue21356
+
+For another time, I must admit.  Yes, that will take time and all.
+But then again, it may fix the build system problems that I went
+through to build OpenSSL, so it is worth pursuing.

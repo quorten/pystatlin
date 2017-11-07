@@ -1,0 +1,30 @@
+# Do not continue on errors.
+set -e
+
+. activate.sh
+. bootstrap.sh
+cd $PYSTAT_DEV/build-scripts
+. dummy-python.sh
+cd $PYSTAT_DEV/build-scripts
+. musl.sh
+cd $PYSTAT_DEV/build-scripts
+. ncurses.sh
+cd $PYSTAT_DEV/build-scripts
+. readline.sh
+cd $PYSTAT_DEV/build-scripts
+. zlib.sh
+cd $PYSTAT_DEV/build-scripts
+. expat.sh
+cd $PYSTAT_DEV/build-scripts
+. bzip2.sh
+cd $PYSTAT_DEV/build-scripts
+. openssl.sh
+cd $PYSTAT_DEV/build-scripts
+. python.sh
+cd $PYSTAT_DEV/build-scripts
+. etc.sh
+cd $PYSTAT_DEV/build-scripts
+. chrootable.sh
+cd $PYSTAT_DEV/build-scripts
+. docker-pystat.sh
+cd $PYSTAT_DEV/build-scripts

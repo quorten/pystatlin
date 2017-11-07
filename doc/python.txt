@@ -1,0 +1,47 @@
+# These are my notes on technicalities to getting static Python built
+# successfully.
+
+# Yes, these are the links where I got the much-needed information on
+# static-linking Python.  Note that from the repository, I only needed
+# to copy Static.make and add_modules.py into my preferred version of
+# Python.
+
+20161008/https://github.com/bendmorris/static-python
+20161008/http://mdqinc.com/blog/2011/08/statically-linking-python-with-cython-generated-modules-and-packages/
+
+Yes, indeed, static linking the Python interpreter was not made to be
+easy by the upstream maintainers.
+
+20161008/http://askubuntu.com/questions/63711/building-a-static-version-of-python
+
+Interesting, but in the end, short-sighted and not quite correct.
+
+20161008/https://www.akkadia.org/drepper/no_static_linking.html
+
+##########
+
+Note:
+
+_bz2 _ctypes _curses_panel _sha1 _socket syslog zlib _hashlib _md5 _sha256 _ssl termios _json pyexpat spwd xxlimited
+mmap parser select
+
+# Also, actually don't link in _ctypes for static-only builds because
+# that is a library exclusively for dynamic linking and foreign
+# function calls.  That also means that you don't need to link in
+# libffi either for static-only builds.
+
+# However, my changes are still useful in case I intend to go through
+# the more long-winded path of building musl with shared library
+# support.  This time, we'll have to go without shared libraries.
+
+# Important!  Modify platform.py before build to add the following
+# line:
+
+        # # Get processor information from the uname system command
+        # processor = _syscmd_uname('-p', '')
+        # Get processor information from the uname system call
+        processor = os.uname().machine
+
+Old versions of Python did not include the machine in the os.uname(),
+but now that we have it, we should use it to avoid the issue of
+invoking nonexistant shells.

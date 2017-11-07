@@ -1,0 +1,24 @@
+Notes on compiling Python with support for `pip'.
+
+Now, this is really tricky.  Note that using --disable-shared will
+interfere with being able to run `ensurepip', because it disallows us
+to dynamically load Python modules.
+
+How do you solve this problem?  See my `build-scripts/python.sh' for
+my code that solves the problem.  This is the detailed explanation for
+why:
+
+Basically you need to compile just enough modules that are required by
+`pip', then for the rest that aren't required by `pip' but claim to be
+superficially required for "Windows support", you comment out the
+Windows support code from the packages.  Then you can get `pip`
+working from your static compile, but don't upgrade `pip'!  Newer
+versions of `pip' are even more thorny when it comes to dependencies
+(of which many are not necessary), so that will break things and
+require even more manual monkey patching to fix things back up.
+
+Yep, `pip' is just like Debian and CentOS.  It claims to require more
+dependencies than it really needs.  Yes, package managers are good,
+it's just packaging practices need to be more sophisticated in
+dependency management in order to make them really good.  (And I have
+plenty a little commentary on that in `lib-intro.txt'.)

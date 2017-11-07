@@ -1,0 +1,14 @@
+# Want a shell written in Python?  You can't really get a good one
+# here, unfortunately.
+
+git clone --mirror https://github.com/jiacai2050/pysh
+# requires: chardet requests
+# and some code modifications for Python 3
+
+########################################
+
+Want to use Python-only as an alternative of ps?  Well, you're out of
+luck.  This time you'll need to pre-install and compile with support
+for dynamic library loading.
+
+20161012/http://stackoverflow.com/questions/160245/which-is-the-best-way-to-get-a-list-of-running-processes-in-unix-with-python#160375

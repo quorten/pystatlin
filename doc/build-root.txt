@@ -1,0 +1,42 @@
+We use two main techniques to build software and install it to a
+virtual root while avoiding the requirement of superuser privileges:
+
+* `proot'
+* `unionfs'
+
+The `build-scripts/boostrap.sh' does most of the work to set these up.
+
+The most important thing you need to do to setup unionfs is to enable
+allow_other in /etc/fuse.conf or something.
+
+Also, remember this important note.  You can't overlay directly on top
+of a tree that you are including in unionfs, otherwise you will get
+kernel lockups.  Yes, this is unfortunate as it means that the user
+cannot run all mount commands without creating a chroot jail, and you
+need to be superuser to chroot.  So, using a FUSE unionfs rather than
+a kernel one slightly falls short of my original goals due to
+limitations in the FUSE kernel mounting capabilities.  Wishful
+thinking.
+
+########################################
+
+Useful for building CentOS packages in a chroot: mach.
+
+20161009/https://www.howtoforge.com/building-rpm-packages-in-a-chroot-environment-using-mach
+
+########################################
+
+Important!  Want to chroot without being the superuser?  You have a
+solution: proot.  Best of all, this particular solution works well
+even on older Linux kernel versions.  The other solution, namespaces,
+does not work on older kernel versions.
+
+20161012/https://github.com/proot-me/PRoot/blob/master/doc/proot/manual.txt
+
+There's also another interesting manual page about CARE that traces
+the execution of a program and copies all dependent resources.
+
+Yes, there are other potential options as indicated on this
+StackOverflow article:
+
+20161012/http://unix.stackexchange.com/questions/72696/how-to-achieve-the-effect-of-chroot-in-userspace-in-linux-without-being-root#72697
