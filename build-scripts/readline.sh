@@ -1,6 +1,6 @@
 rpm -i $S/readline-*.src.rpm
 cd $HOME/rpmbuild/SPECS
-rpmbuild -bp readline.spec
+rpmbuild -bp --nodeps readline.spec
 cd ../BUILD/readline-*
 ./configure CC=musl-gcc LDFLAGS=-static --prefix=$HDEV_PREFIX --disable-shared
 

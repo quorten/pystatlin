@@ -1,6 +1,6 @@
 rpm -i $S/ncurses-*.src.rpm
 cd $HOME/rpmbuild/SPECS
-rpmbuild -bp ncurses.spec
+rpmbuild -bp --nodeps ncurses.spec
 # rpmbuild -bc ncurses.spec
 cd ../BUILD/ncurses-*
 

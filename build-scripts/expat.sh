@@ -1,6 +1,6 @@
 rpm -i $S/expat-*.src.rpm
 cd $HOME/rpmbuild/SPECS
-rpmbuild -bp expat.spec
+rpmbuild -bp --nodeps expat.spec
 cd ../BUILD/expat-*
 ./configure CC=musl-gcc LDFLAGS=-static --prefix=$HDEV_PREFIX --disable-shared
 

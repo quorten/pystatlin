@@ -2,14 +2,14 @@
 # that will make things easier.
 sudo yum -y install yum-utils
 sudo yum -y groupinstall 'Development Tools'
-sudo yum -y install openssl-devel libcurl-devel expat-devel wish \
-  'perl(ExtUtils::MakeMaker)' readline-devel
-sudo yum -y install glibc-static ncurses-static readline-static \
-  zlib-static expat-static bzip2-devel openssl-static
+# sudo yum -y install openssl-devel libcurl-devel expat-devel wish \
+#   'perl(ExtUtils::MakeMaker)' readline-devel
+# sudo yum -y install glibc-static ncurses-static readline-static \
+#   zlib-static expat-static bzip2-devel openssl-static
 # Misc. build depends that `yum' will complain about if not present.
 # These are either disabled by our own build processes or not needed
 # on install.
-sudo yum -y install gpm-devel check-devel
+# sudo yum -y install gpm-devel check-devel
 
 ######################################################################
 

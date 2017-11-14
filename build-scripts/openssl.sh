@@ -6,7 +6,7 @@
 
 # rpm -i openssl-1.0.1e-42.el7.9.src.rpm
 # cd $HOME/rpmbuild/SPECS
-# rpmbuild -bp openssl.spec
+# rpmbuild -bp --nodeps openssl.spec
 # cd ../BUILD/openssl-1.0.1e
 
 cd $COMPILE_DIR

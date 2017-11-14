@@ -1,6 +1,6 @@
 rpm -i $S/zlib-*.src.rpm
 cd $HOME/rpmbuild/SPECS
-rpmbuild -bp zlib.spec
+rpmbuild -bp --nodeps zlib.spec
 cd ../BUILD/zlib-*
 CC=musl-gcc LDFLAGS=-static ./configure --prefix=$HDEV_PREFIX --static
 make -j`getconf _NPROCESSORS_ONLN`
