@@ -14,7 +14,7 @@ sed -i -e "s|^SSL=/usr/local/musl\$|SSL=/usr|g" \
   Modules/Setup.dist
 make -f Static.make PREFIX=$UHTGPREFIX \
   MAKE_ARGS=-j`getconf _NPROCESSORS_ONLN` \
-  PYTHON=/usr/local/dummy/bin/python2.7
+  PYTHON=$BTOOLS_PREFIX/bin/python2.7
 
 # Make sure the target Python lib directory is clean, otherwise the
 # installation won't work correctly since our use of union file
