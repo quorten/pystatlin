@@ -24,10 +24,10 @@ cd $HOME/rpmbuild
 rm -rf *
 
 # Move the production files into the production prefix.
-mkdir $IPREFIX/lib
+mkdir -p $IPREFIX/lib
 rm -rf $IPREFIX/lib/terminfo
 mv $HDEV_PREFIX/lib/terminfo $IPREFIX/lib/
-mkdir $IPREFIX/share
+mkdir -p $IPREFIX/share
 rm -rf $IPREFIX/share/tabset
 mv $HDEV_PREFIX/share/tabset/ $IPREFIX/share/
 rm -rf $IPREFIX/share/terminfo
