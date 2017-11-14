@@ -9,7 +9,7 @@
 cd $COMPILE_DIR
 xz -dc $S/Python-2.7.12.tar.xz | tar -x
 cd Python-2.7.12
-patch -p1 <$PYOS_SOURCES/static-prep2p1.diff
+patch -p1 <$PYSTAT_SOURCES/static-prep2p1.diff
 sed -i -e "s|^SSL=/usr/local/musl\$|SSL=/usr|g" \
   Modules/Setup.dist
 make -f Static.make PREFIX=$UHTGPREFIX \

@@ -9,7 +9,7 @@
 cd $COMPILE_DIR
 xz -dc $S/Python-3.5.1.tar.xz | tar -x
 cd Python-3.5.1
-patch -p1 <$PYOS_SOURCES/static-prep.diff
+patch -p1 <$PYSTAT_SOURCES/static-prep.diff
 sed -i -e "s|^SSL=/usr/local/musl\$|SSL=$HDEV_PREFIX|g" \
   Modules/Setup.dist
 make -f Static.make PREFIX=$UHTGPREFIX \

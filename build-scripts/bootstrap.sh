@@ -234,7 +234,7 @@ sudo yum -y install fuse fuse-devel # Important!
 cd $COMPILE_DIR
 git clone $S/unionfs-fuse.git
 cd unionfs-fuse
-git apply --index $PYOS_SOURCES/uninstall-unionfs.diff
+git apply --index $PYSTAT_SOURCES/uninstall-unionfs.diff
 git commit -m 'Add uninstall target to Makefile.'
 make -j`getconf _NPROCESSORS_ONLN`
 # nosudo make install
