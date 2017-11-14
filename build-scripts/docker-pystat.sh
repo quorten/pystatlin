@@ -15,7 +15,7 @@ cp $PYSTAT_SOURCES/build/Dockerfile .
     -cf $PYSTAT_DEV/build/oroot.tar * )
 
 # This is it!
-sudo docker build -t pyos .
+sudo docker build -t pystatlin .
 
 # Now that we're done, let's delete our created `sh.py' to avoid
 # future problems when building sub-steps.
