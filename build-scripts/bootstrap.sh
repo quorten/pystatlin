@@ -1,10 +1,13 @@
+# Note: Because `yum' will fail if the dependencies are already
+# installed, we use `!' to prevent our script from quitting.
+
 # First, install various development tools onto our CentOS machine
 # that will make things easier.
-sudo yum -y install yum-utils
-sudo yum -y groupinstall 'Development Tools'
+! sudo yum -y install yum-utils
+! sudo yum -y groupinstall 'Development Tools'
 # These are primarily used for building our dummy Python
 # (`dummy-python.sh').
-sudo yum -y install openssl-devel libcurl-devel expat-devel wish \
+! sudo yum -y install openssl-devel libcurl-devel expat-devel wish \
   'perl(ExtUtils::MakeMaker)' readline-devel
 
 ######################################################################
@@ -226,7 +229,7 @@ git clone --mirror https://github.com/jiacai2050/pysh.git
 # the technique works with static-linked binaries, whereas LD_PRELOAD
 # obviously only works on dynamic executables with shared libraries.
 
-sudo yum -y install fuse fuse-devel # Important!
+! sudo yum -y install fuse fuse-devel # Important!
 sudo sed -i -e 's/^# user_allow_other/user_allow_other/' /etc/fuse.conf
 cd $COMPILE_DIR
 git clone $S/unionfs-fuse.git
@@ -243,7 +246,7 @@ rm -rf unionfs-fuse
 
 # `proot' is useful for not needing to be superuser to do a `chroot'.
 
-sudo yum -y install libtalloc-devel
+! sudo yum -y install libtalloc-devel
 cd $COMPILE_DIR
 git clone $S/PRoot.git
 cd PRoot/src
