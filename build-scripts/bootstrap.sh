@@ -2,14 +2,10 @@
 # that will make things easier.
 sudo yum -y install yum-utils
 sudo yum -y groupinstall 'Development Tools'
-# sudo yum -y install openssl-devel libcurl-devel expat-devel wish \
-#   'perl(ExtUtils::MakeMaker)' readline-devel
-# sudo yum -y install glibc-static ncurses-static readline-static \
-#   zlib-static expat-static bzip2-devel openssl-static
-# Misc. build depends that `yum' will complain about if not present.
-# These are either disabled by our own build processes or not needed
-# on install.
-# sudo yum -y install gpm-devel check-devel
+# These are primarily used for building our dummy Python
+# (`dummy-python.sh').
+sudo yum -y install openssl-devel libcurl-devel expat-devel wish \
+  'perl(ExtUtils::MakeMaker)' readline-devel
 
 ######################################################################
 
@@ -231,6 +227,7 @@ git clone --mirror https://github.com/jiacai2050/pysh.git
 # obviously only works on dynamic executables with shared libraries.
 
 sudo yum -y install fuse fuse-devel # Important!
+sudo sed -i -e 's/^# user_allow_other/user_allow_other/' /etc/fuse.conf
 cd $COMPILE_DIR
 git clone $S/unionfs-fuse.git
 cd unionfs-fuse

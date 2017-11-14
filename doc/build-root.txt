@@ -7,7 +7,8 @@ virtual root while avoiding the requirement of superuser privileges:
 The `build-scripts/boostrap.sh' does most of the work to set these up.
 
 The most important thing you need to do to setup unionfs is to enable
-allow_other in /etc/fuse.conf or something.
+`user_allow_other' in `/etc/fuse.conf'.  The build script tries to
+verify that this is the case.
 
 Also, remember this important note.  You can't overlay directly on top
 of a tree that you are including in unionfs, otherwise you will get
