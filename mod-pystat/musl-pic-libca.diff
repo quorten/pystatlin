@@ -1,6 +1,6 @@
-diff -Nurp musl-1.1.15.orig/Makefile musl-1.1.15/Makefile
---- musl-1.1.15.orig/Makefile	2016-07-05 17:58:46.000000000 -0400
-+++ musl-1.1.15/Makefile	2016-10-18 11:13:47.349446169 -0400
+diff -Naurp musl-1.1.15.orig/Makefile musl-1.1.15/Makefile
+--- musl-1.1.15.orig/Makefile	2016-07-05 16:58:46.000000000 -0500
++++ musl-1.1.15/Makefile	2017-11-14 17:46:21.473557267 -0600
 @@ -28,11 +28,11 @@ REPLACED_OBJS = $(sort $(subst /$(ARCH)/
  ALL_OBJS = $(addprefix obj/, $(filter-out $(REPLACED_OBJS), $(sort $(BASE_OBJS) $(ARCH_OBJS))))
  
@@ -61,7 +61,7 @@ diff -Nurp musl-1.1.15.orig/Makefile musl-1.1.15/Makefile
  
  $(CRT_OBJS): CFLAGS_ALL += -DCRT
  
-@@ -154,22 +154,14 @@ obj/%.o: $(srcdir)/%.S
+@@ -154,22 +154,13 @@ obj/%.o: $(srcdir)/%.S
  obj/%.o: $(srcdir)/%.c $(GENH) $(IMPH)
  	$(CC_CMD)
  
@@ -74,18 +74,15 @@ diff -Nurp musl-1.1.15.orig/Makefile musl-1.1.15/Makefile
 -obj/%.lo: $(srcdir)/%.c $(GENH) $(IMPH)
 -	$(CC_CMD)
 -
--lib/libc.so: $(LOBJS) $(LDSO_OBJS)
-+lib/libc.so: lib/libc.a
+ lib/libc.so: $(LOBJS) $(LDSO_OBJS)
  	$(CC) $(CFLAGS_ALL) $(LDFLAGS_ALL) -nostdlib -shared \
--	-Wl,-e,_dlstart -o $@ $(LOBJS) $(LDSO_OBJS) $(LIBCC)
-+	-Wl,-e,_dlstart -o $@ \
-+	-Wl,--whole-archive lib/libc.a -Wl,--no-whole-archive $(LIBCC)
+ 	-Wl,-e,_dlstart -o $@ $(LOBJS) $(LDSO_OBJS) $(LIBCC)
  
 -lib/libc.a: $(AOBJS)
-+lib/libc.a: $(LOBJS) $(LDSO_OBJS)
++lib/libc.a: $(LOBJS)
  	rm -f $@
 -	$(AR) rc $@ $(AOBJS)
-+	$(AR) rc $@ $(LOBJS) $(LDSO_OBJS)
++	$(AR) rc $@ $(LOBJS)
  	$(RANLIB) $@
  
  $(EMPTY_LIBS):

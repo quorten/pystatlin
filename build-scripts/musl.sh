@@ -10,6 +10,7 @@
 cd $COMPILE_DIR
 tar -zxf $S/musl-1.1.15.tar.gz
 cd musl-1.1.15
+patch -p1 <$PYSTAT_SOURCES/musl-pic-libca.diff
 ./configure --prefix=$HDEV_PREFIX
 make -j`getconf _NPROCESSORS_ONLN`
 # nosudo make install

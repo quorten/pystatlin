@@ -121,6 +121,20 @@ cc -shared -o libexample.so -fPIC \
 # "-Wl,--no-whole-archive" flags in the static library example, but we
 # didn't, simply for the sake of brevity.
 
+# Also note that my previously demonstrated technique will not work
+# correctly if there are strong symbols and weak symbols in the same
+# static library.  This will end up behaving differently than
+# individual object files passed on the command-line since static
+# libraries always pick the first symbol, regardless of whether it is
+# a strong symbol or a weak symbol.  If you still want to use a static
+# library during the link-to-dynamic library, you will have to make
+# sure the objects are archived in the correct order to achieve the
+# same net effect.
+
+# 20171114/DuckDuckGo whole-archive static library weak symbols
+# 20171114/https://stackoverflow.com/questions/23079997/override-weak-symbols-in-static-library
+# 20171114/https://stackoverflow.com/questions/13089166/how-to-make-gcc-link-strong-symbol-in-static-library-to-overwrite-weak-symbol
+
 # Coming back to our shared library example, you can build the
 # dynamic-linked executable in one of two ways.
 
