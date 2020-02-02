@@ -13,6 +13,11 @@ as follows:
     * `libffi-setup.txt`
 * The remaining documents are informative.
 
+Please note that although this wasn't the intent, perhaps this
+repository is more useful for the documentation contained within than
+the code itself.  In particular, my documentation about how code
+libraries work is quite insightful and informative.
+
 For scripts to execute the build, see `build-scripts`.  The `total.sh`
 script is an example that runs everything.  You don't actually need to
 run everything to perform a useful build, though.
